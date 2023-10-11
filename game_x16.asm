@@ -5,60 +5,60 @@
 section .data
     ; ------------------- Data Section ---------------------
     ; Game UI Components
-    board db ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
-    verticalSeparator db 0AH, 0DH, '---+---+---', 0AH, 0DH, '$'
-    newline db 0AH, 0DH, '$'
+    board DB ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
+    verticalSeparator DB 0AH, 0DH, '---+---+---', 0AH, 0DH, '$'
+    newline DB 0AH, 0DH, '$'
     
     ; Messages and Prompts
-    welcomeMessage db 'Welcome to TicTacToe!', 0AH, 0DH, '$'
-    promptInput db 'Enter number from 1 to 9 :', '$'
-    turnO db 'Player O turns :', 0AH, 0DH, '$'
-    turnX db 'Player X turns :', 0AH, 0DH, '$'
-    errorOutOfRange db 'Error: Invalid Input!', 0AH, 0DH, '$'
-    errorOccupiedCell db 'Error: Not Empty space !', 0AH, 0DH, '$'
-    victoryMessage db ' Has Won this Game ! Yay..', 0AH, 0DH, '$'
-    drawMessage db 'Oh..It is a Draw..', 0AH, 0DH, '$'
-    playAgainPrompt db 'Would You Like to play again ?', 0AH, 0DH, 'Select y or n :', '$'
-    farewellMessage db 'Have a good day !...', 0AH, 0DH, 'Written in x16 Assembly by ZAM', '$'
+    welcomeMessage DB 'Welcome to TicTacToe!', 0AH, 0DH, '$'
+    promptInput DB 'Enter number from 1 to 9 :', '$'
+    turnO DB 'Player O turns :', 0AH, 0DH, '$'
+    turnX DB 'Player X turns :', 0AH, 0DH, '$'
+    errorOutOfRange DB 'Error: Invalid Input!', 0AH, 0DH, '$'
+    errorOccupiedCell DB 'Error: Not Empty space !', 0AH, 0DH, '$'
+    victoryMessage DB ' Has Won this Game ! Yay..', 0AH, 0DH, '$'
+    drawMessage DB 'Oh..It is a Draw..', 0AH, 0DH, '$'
+    playAgainPrompt DB 'Would You Like to play again ?', 0AH, 0DH, 'Select y or n :', '$'
+    farewellMessage DB 'Have a good day !...', 0AH, 0DH, 'Written in x16 Assembly by ZAM', '$'
 
 section .text
     ; ------------------- Code Section ---------------------
-    org 100H        ; COM file's entry point
-    call gameInit   ; Game Initialization
+    ORG 100H        ; COM file's entry point
+    CALL gameInit   ; Game Initialization
 
     exit:
         ; Print farewell and return to DOS
-        mov ah, 09h
-        mov dx, farewellMessage
-        int 21h
-        mov ax, 4c00h
-        int 21h
+        MOV AH, 09H
+        MOV DX, farewellMessage
+        INT 21H
+        MOV ax, 4c00h
+        INT 21H
 
     ; ------------------- Procedure Definitions ---------------------
 
     ; Initializes the game and displays the welcome message
     gameInit:
-        mov ah, 09h
-        mov dx, welcomeMessage
-        int 21h
-        call mainGameLoop
-        ret
+        MOV AH, 09H
+        MOV DX, welcomeMessage
+        INT 21H
+        CALL mainGameLoop
+        RET
 
     ; Main game loop handling the game process
     mainGameLoop:
         gameRestart:
-            mov bh, 'O'  ; Initialize with player 'O'
-            mov di, 9    ; Total turns for a game
-            call displayBoard
+            MOV BH, 'O'  ; Initialize with player 'O'
+            MOV DI, 9    ; Total turns for a game
+            CALL displayBoard
 
             gameFlowLoop:
-                call handlePlayerTurn  ; Handle player turn
-                call displayBoard
-                call checkWinCondition
-                dec di  ; Decrease the number of turns left
-            jnz gameFlowLoop
-            call displayDrawMessage
-            ret
+                CALL handlePlayerTurn  ; Handle player turn
+                CALL displayBoard
+                CALL checkWinCondition
+                DEC DI  ; Decrease the number of turns left
+            JNZ gameFlowLoop
+            CALL displayDrawMessage
+            RET
 
     ; Handle player turn, input and update the board
     handlePlayerTurn:
@@ -85,7 +85,7 @@ section .text
         CALL getInputFromUser
         ; Update the board with the current player's move
         MOV [SI], BH        
-        ret
+        RET
 
     ; Get input from the user and validate it
     getInputFromUser:
@@ -112,7 +112,7 @@ section .text
         JMP validateInput        
         back:
         CALL printNewline
-        ret
+        RET
 
     ; Validate user input
     validateInput:
@@ -130,7 +130,7 @@ section .text
         JNZ notempty     
         ; If there are no issues, proceed to the next step
         JMP back         
-        ret
+        RET
     
     ; Code block to handle the error when the chosen cell is already occupied
     notempty:
@@ -205,7 +205,7 @@ section .text
         MOV AH, 09H
         ; Point DX to the newline string
         MOV DX, newline
-        ; Call DOS to print the newline string
+        ; CALL DOS to print the newline string
         INT 21H
         ; Return from the procedure
         RET
@@ -245,9 +245,9 @@ section .text
                 ADD SI, 3  ; Move SI down one row in the same column
                 DEC CH
                 CMP CH, 0
-                JZ endVerticalLoop
+                JZ endVertiCALLoop
             JMP verticalColLoop
-            endVerticalLoop:
+            endVertiCALLoop:
             ; If 3 in a column are found, the game is won
             CMP BL, 3
             JZ gameWon
@@ -287,7 +287,7 @@ section .text
             CMP BL, 3
         JZ gameWon
         ; Return if no win condition is met
-        ret
+        RET
 
     ; Code block to announce the player who won the game
     gameWon:
@@ -327,11 +327,11 @@ section .text
 
     ; Announce game as a draw and ask for a rematch
     displayDrawMessage:
-        mov ah, 09h
-        mov dx, drawMessage
-        int 21h
-        call promptPlayAgain
-        ret
+        MOV AH, 09H
+        MOV DX, drawMessage
+        INT 21H
+        CALL promptPlayAgain
+        RET
 
     ; Procedure to reset the game board for a new game
     resetGameBoard:
@@ -353,4 +353,4 @@ section .text
             ; If not all cells are cleared, repeat the loop
         JNZ clearBoardLoop
         ; Restart the game once the board is cleared
-        jmp gameRestart
+        JMP gameRestart

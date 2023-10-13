@@ -31,7 +31,7 @@ section .text
         MOV AH, 09H
         MOV DX, farewellMessage
         INT 21H
-        MOV ax, 4c00h
+        MOV AX, 4C00H
         INT 21H
 
     ; ------------------- Procedure Definitions ---------------------
@@ -58,7 +58,7 @@ section .text
                 DEC DI  ; Decrease the number of turns left
             JNZ gameFlowLoop
             CALL displayDrawMessage
-            RET
+        RET
 
     ; Handle player turn, input and update the board
     handlePlayerTurn:
@@ -66,16 +66,16 @@ section .text
         ; Check if it's player 'O's turn
         CMP BH, 'O'
         JNZ X_Turn           
-        ; Switch to player 'X'
-        MOV BH, 'X'     
-        ; Point to the message that indicates it's 'X's turn
-        MOV SI, turnX   
-        JMP continue
+            ; Switch to player 'X'
+            MOV BH, 'X'     
+            ; Point to the message that indicates it's 'X's turn
+            MOV SI, turnX   
+            JMP continue
         X_Turn: 
-        ; If it wasn't 'O's turn, switch to player 'O'
-        MOV BH, 'O'     
-        ; Point to the message that indicates it's 'O's turn
-        MOV SI, turnO   
+            ; If it wasn't 'O's turn, switch to player 'O'
+            MOV BH, 'O'     
+            ; Point to the message that indicates it's 'O's turn
+            MOV SI, turnO   
         continue:
         ; Display the message for the current player's turn
         MOV AH, 09H
@@ -181,8 +181,8 @@ section .text
                 JZ skipVerticalSep
                     MOV DL, '|'
                     INT 21H
-                skipVerticalSep:
-                    DEC CL
+                skipV erticalSep:
+                DEC CL
             JNZ colLoop
             ; Check if we're at the bottom row to possibly skip the horizontal separator
             CMP CH, 1
@@ -190,7 +190,6 @@ section .text
                 MOV AH, 09H
                 MOV DX, verticalSeparator
                 INT 21H
-
             skipHorizontalSep:
                 DEC CH
             JNZ rowLoop
@@ -236,55 +235,58 @@ section .text
         ; Check for vertical win
         MOV SI, board
         MOV BL, 0
+        MOV CX, 0
         checkVertical:
+            MOV AL, 0
             verticalColLoop:
                 CMP [SI], BH
                 JNZ skip_count_v
                 INC BL
                 skip_count_v:
                 ADD SI, 3  ; Move SI down one row in the same column
-                DEC CH
-                CMP CH, 0
-                JZ endVertiCALLoop
-            JMP verticalColLoop
-            endVertiCALLoop:
-            ; If 3 in a column are found, the game is won
-            CMP BL, 3
-            JZ gameWon
-            MOV BL, 0
-            ADD SI, -6  ; Reset SI to the top and move one column to the right
-            INC CL
-            CMP CL, 3
+                INC AL
+            CMP AL, 3
+            JNZ verticalColLoop
+        ; If 3 in a column are found, the game is won
+        CMP BL, 3
+        JZ gameWon
+        MOV BL, 0
+        INT CX
+        MOV SI, board  ; Reset SI to the top of board
+        ADD SI, CX
+        CMP CX, 3
         JNZ checkVertical
         ; Check for diagonal win (from top-left to bottom-right)
         MOV SI, board
         MOV BL, 0
+        MOV CX, 0
         checkDiagonal1:
             CMP [SI], BH
             JNZ skip_count_d1
             INC BL
             skip_count_d1:
             ADD SI, 4  ; Move SI down one row and one column to the right
-            DEC CH
-            CMP CH, 0
-            JNZ checkDiagonal1
-            ; If 3 in a diagonal are found, the game is won
-            CMP BL, 3
+            INC CX
+        CMP CX, 3
+        JNZ checkDiagonal1
+        ; If 3 in a diagonal are found, the game is won
+        CMP BL, 3
         JZ gameWon
         ; Check for diagonal win (from top-right to bottom-left)
         MOV SI, board + 2
         MOV BL, 0
+        MOV CX, 0
         checkDiagonal2:
             CMP [SI], BH
             JNZ skip_count_d2
             INC BL
             skip_count_d2:
             ADD SI, 2  ; Move SI down one row and one column to the left
-            DEC CH
-            CMP CH, 0
-            JNZ checkDiagonal2
-            ; If 3 in a diagonal are found, the game is won
-            CMP BL, 3
+            INC CX
+        CMP CX, 3
+        JNZ checkDiagonal2
+        ; If 3 in a diagonal are found, the game is won
+        CMP BL, 3
         JZ gameWon
         ; Return if no win condition is met
         RET

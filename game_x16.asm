@@ -181,7 +181,7 @@ section .text
                 JZ skipVerticalSep
                     MOV DL, '|'
                     INT 21H
-                skipV erticalSep:
+                skipVerticalSep:
                 DEC CL
             JNZ colLoop
             ; Check if we're at the bottom row to possibly skip the horizontal separator
@@ -251,7 +251,7 @@ section .text
         CMP BL, 3
         JZ gameWon
         MOV BL, 0
-        INT CX
+        INC CX
         MOV SI, board  ; Reset SI to the top of board
         ADD SI, CX
         CMP CX, 3
